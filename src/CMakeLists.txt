@@ -1,3 +1,8 @@
+
+set(DKDE_INSTALL_USE_QT_SYS_PATHS=ON)
+set(DQT_MAJOR_VERSION=6)
+set(DQT_VERSION_MAJOR=6)
+
 find_package (KDecoration2 REQUIRED)
 
 find_package (Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
@@ -5,7 +10,7 @@ find_package (Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
     Gui
 )
 
-find_package (KF5 REQUIRED COMPONENTS
+find_package (KF6 REQUIRED COMPONENTS
     Config
     ConfigWidgets
     CoreAddons
@@ -13,6 +18,7 @@ find_package (KF5 REQUIRED COMPONENTS
     I18n
     IconThemes
     WindowSystem
+    KCMUtils
 )
 
 
@@ -30,15 +36,15 @@ find_package(XCB MODULE REQUIRED COMPONENTS
 )
 set_package_properties(XCB PROPERTIES TYPE REQUIRED)
 
-if (Qt6_FOUND)
+#if (Qt6_FOUND)
     # The QX11Info class has been removed.
     # Clients that still rely on the functionality can include the private header <QtGui/private/qtx11extras_p.h> as a stopgap solution.
     # To enable private headers use QT += gui-private with qmake, or add a project dependency to Qt::GuiPrivate with CMake.
     # https://doc.qt.io/qt-6/extras-changes-qt6.html#changes-to-qt-x11-extras
-    find_package(Qt${QT_VERSION_MAJOR} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS GuiPrivate)
-elseif(Qt5_FOUND)
-    find_package(Qt${QT_VERSION_MAJOR} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS X11Extras)
-endif()
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS GuiTools)
+#elseif(Qt5_FOUND)
+#    find_package(Qt${QT_VERSION_MAJOR} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS X11Extras)
+#endif()
 
 
 if(X11_FOUND AND XCB_XCB_FOUND)
@@ -48,14 +54,14 @@ endif()
 
 
 # Wayland
-find_package (KF5 COMPONENTS
-    Wayland
-)
+#find_package (KF6 COMPONENTS
+#    Wayland
+#)
 
-if(KF5Wayland_FOUND)
-    set(HAVE_Wayland ON)
-    set(Wayland_LIBRARIES KF5::WaylandClient)
-endif()
+#if(KF5Wayland_FOUND)
+    set(HAVE_Wayland OFF)
+#    set(Wayland_LIBRARIES KF5::WaylandClient)
+#endif()
 
 
 # KDecoration2/Plasma Version
@@ -67,12 +73,12 @@ endif()
 message(STATUS "HAVE_KDecoration2_5_25: ${HAVE_KDecoration2_5_25} (${KDecoration2_VERSION})")
 
 # KF5 Version
-if(${KF5_VERSION} VERSION_GREATER_EQUAL "5.101.0")
+#if(${KF5_VERSION} VERSION_GREATER_EQUAL "5.101.0")
     set(HAVE_KF5_101 ON)
-else()
-    set(HAVE_KF5_101 OFF)
-endif()
-message(STATUS "HAVE_KF5_101: ${HAVE_KF5_101} (${KF5_VERSION})")
+#else()
+#    set(HAVE_KF5_101 OFF)
+#endif()
+#message(STATUS "HAVE_KF5_101: ${HAVE_KF5_101} (${KF5_VERSION})")
 
 
 configure_file(BuildConfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/BuildConfig.h)
@@ -104,16 +110,17 @@ target_link_libraries (materialdecoration
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
         # Qt${QT_VERSION_MAJOR}::X11Extras
-        KF5::ConfigCore
-        KF5::ConfigGui
-        KF5::ConfigWidgets
-        KF5::CoreAddons
-        KF5::I18n
-        KF5::GuiAddons
-        KF5::IconThemes
-        KF5::WindowSystem
+        KF6::ConfigCore
+        KF6::ConfigGui
+        KF6::ConfigWidgets
+        KF6::CoreAddons
+        KF6::I18n
+        KF6::GuiAddons
+        KF6::IconThemes
+        KF6::WindowSystem
+        KF6::KCMUtils
         ${X11_LIBRARIES}
-        ${Wayland_LIBRARIES}
+#        ${Wayland_LIBRARIES}
 
     PRIVATE
         KDecoration2::KDecoration

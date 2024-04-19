@@ -37,7 +37,7 @@ namespace Material
 MenuOverflowButton::MenuOverflowButton(Decoration *decoration, const int buttonIndex, QObject *parent)
     : AppMenuButton(decoration, buttonIndex, parent)
 {
-    auto *decoratedClient = decoration->client().toStrongRef().data();
+    auto *decoratedClient = decoration->client();
 
     setVisible(decoratedClient->hasApplicationMenu());
 }

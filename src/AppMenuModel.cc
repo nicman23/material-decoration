@@ -420,7 +420,7 @@ void AppMenuModel::updateApplicationMenu(const QString &serviceName, const QStri
     });
 }
 
-bool AppMenuModel::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+bool AppMenuModel::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
     Q_UNUSED(result);
 

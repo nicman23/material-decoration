@@ -85,7 +85,7 @@ AppMenuButtonGroup::AppMenuButtonGroup(Decoration *decoration)
         // update();
     });
 
-    auto *decoratedClient = decoration->client().toStrongRef().data();
+    auto decoratedClient = decoration->client();
     connect(decoratedClient, &KDecoration2::DecoratedClient::hasApplicationMenuChanged,
             this, &AppMenuButtonGroup::updateAppMenuModel);
     connect(this, &AppMenuButtonGroup::requestActivateIndex,
@@ -234,15 +234,18 @@ void AppMenuButtonGroup::resetButtons()
 {
     // qCDebug(category) << "    resetButtons";
     // qCDebug(category) << "        before" << buttons();
-    auto list = QVector<QPointer<KDecoration2::DecorationButton>>(buttons());
+//  const QPointer<KDecoration2::DecorationButton> &button : buttonList
+//    auto list = QVector<QPointer<KDecoration2::DecorationButton>>(buttons());
     // qCDebug(category) << "          list" << list;
     removeButton(KDecoration2::DecorationButtonType::Custom);
     // qCDebug(category) << "     remCustom" << buttons();
-    while (!list.isEmpty()) {
-        auto item = list.takeFirst();
-        // qCDebug(category) << "        delete" << item;
-        delete item;
+
+    for (int i = 0; i < buttons().length(); i++) {
+        KDecoration2::DecorationButton* decoButton = buttons().value(i);
+        auto *button = qobject_cast<Button *>(decoButton);
+        delete button;
     }
+
     // qCDebug(category) << "         after" << list;
     emit menuUpdated();
 }
@@ -261,7 +264,7 @@ void AppMenuButtonGroup::updateAppMenuModel()
     if (!deco) {
         return;
     }
-    auto *decoratedClient = deco->client().toStrongRef().data();
+    auto decoratedClient = deco->client();
 
     // Don't display AppMenu in modal windows.
     if (decoratedClient->isModal()) {
@@ -395,7 +398,7 @@ void AppMenuButtonGroup::trigger(int buttonIndex) {
 
     const auto *deco = qobject_cast<Decoration *>(decoration());
     // if (actionMenu && deco) {
-    //     auto *decoratedClient = deco->client().toStrongRef().data();
+    //     auto *decoratedClient = deco->client();
     //     actionMenu->setPalette(decoratedClient->palette());
     // }
 

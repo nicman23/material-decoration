@@ -55,7 +55,7 @@ public:
         appIconRect.moveCenter(contentRect.center().toPoint());
 
         const auto *deco = qobject_cast<Decoration *>(button->decoration());
-        auto *decoratedClient = deco->client().toStrongRef().data();
+        auto *decoratedClient = deco->client();
 
         const QPalette activePalette = KIconLoader::global()->customPalette();
         QPalette palette = decoratedClient->palette();

@@ -62,7 +62,7 @@ public:
     void paint(QPainter *painter, const QRect &repaintRegion) override;
 
 public slots:
-    void init() override;
+    bool init() override;
     void reconfigure();
 
 protected:

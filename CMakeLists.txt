@@ -11,6 +11,10 @@ set (CMAKE_MODULE_PATH
     ${ECM_MODULE_PATH}
 )
 
+set(DKDE_INSTALL_USE_QT_SYS_PATHS=ON)
+set(DQT_MAJOR_VERSION=6)
+set(DQT_VERSION_MAJOR=6)
+
 include (ECMInstallIcons)
 include (KDEInstallDirs)
 include (KDECMakeSettings)
@@ -19,9 +23,10 @@ include (KDECompilerSettings NO_POLICY_SCOPE)
 # set(QT_MIN_VERSION "5.9.0")
 # https://doc.qt.io/qt-6/cmake-qt5-and-qt6-compatibility.html#supporting-older-qt-5-versions
 # find_package(QT NAMES Qt6 Qt5)
-find_package(QT NAMES Qt5)
-# find_package(QT NAMES Qt6)
-find_package(Qt${QT_VERSION_MAJOR} CONFIG REQUIRED COMPONENTS
+#find_package(QT NAMES Qt5)
+find_package(QT NAMES Qt${QT_VERSION_MAJOR})
+
+find_package(Qt6 CONFIG REQUIRED COMPONENTS
     Widgets
     DBus
 )

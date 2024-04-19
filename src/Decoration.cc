@@ -151,7 +151,7 @@ static int s_decoCount = 0;
 static int s_shadowSizePreset = InternalSettings::ShadowVeryLarge;
 static int s_shadowStrength = 255;
 static QColor s_shadowColor = QColor(33, 33, 33);
-static QSharedPointer<KDecoration2::DecorationShadow> s_cachedShadow;
+static std::shared_ptr<KDecoration2::DecorationShadow> s_cachedShadow;
 
 Decoration::Decoration(QObject *parent, const QVariantList &args)
     : KDecoration2::Decoration(parent, args)
@@ -163,7 +163,7 @@ Decoration::Decoration(QObject *parent, const QVariantList &args)
 Decoration::~Decoration()
 {
     if (--s_decoCount == 0) {
-        s_cachedShadow.clear();
+        s_cachedShadow.reset();
     }
 }
 
@@ -192,7 +192,7 @@ QRect Decoration::centerRect() const
 
 void Decoration::paint(QPainter *painter, const QRect &repaintRegion)
 {
-    auto *decoratedClient = client().toStrongRef().data();
+    auto *decoratedClient = client();
 
     if (!decoratedClient->isShaded()) {
         paintFrameBackground(painter, repaintRegion);
@@ -209,11 +209,11 @@ void Decoration::paint(QPainter *painter, const QRect &repaintRegion)
     updateBlur();
 }
 
-void Decoration::init()
+bool Decoration::init()
 {
     m_internalSettings = QSharedPointer<InternalSettings>(new InternalSettings());
 
-    auto *decoratedClient = client().toStrongRef().data();
+    auto *decoratedClient = client();
 
     auto repaintTitleBar = [this] {
         update(titleBar());
@@ -273,7 +273,7 @@ void Decoration::init()
     // the Window Decorations KCM crashes.
     updateShadow();
 
-    connect(settings().data(), &KDecoration2::DecorationSettings::reconfigured,
+    connect(settings().get(), &KDecoration2::DecorationSettings::reconfigured,
         this, &Decoration::reconfigure);
     connect(m_internalSettings.data(), &InternalSettings::configChanged,
         this, &Decoration::reconfigure);
@@ -281,12 +281,13 @@ void Decoration::init()
     // Window Decoration KCM
     // The reconfigure signal will update active windows, but we need to hook
     // individual signals for the preview in the KCM.
-    connect(settings().data(), &KDecoration2::DecorationSettings::borderSizeChanged,
+    connect(settings().get(), &KDecoration2::DecorationSettings::borderSizeChanged,
         this, &Decoration::updateBorders);
-    connect(settings().data(), &KDecoration2::DecorationSettings::fontChanged,
+    connect(settings().get(), &KDecoration2::DecorationSettings::fontChanged,
         this, &Decoration::updateBorders);
-    connect(settings().data(), &KDecoration2::DecorationSettings::spacingChanged,
+    connect(settings().get(), &KDecoration2::DecorationSettings::spacingChanged,
         this, &Decoration::updateBorders);
+  return true;
 }
 
 void Decoration::reconfigure()
@@ -563,7 +564,7 @@ void Decoration::updateShadow()
     const int shadowStrengthInt = m_internalSettings->shadowStrength();
     const int shadowSizePreset = m_internalSettings->shadowSize();
 
-    if (!s_cachedShadow.isNull()
+    if (!s_cachedShadow
         && s_shadowColor == shadowColor
         && s_shadowSizePreset == shadowSizePreset
         && s_shadowStrength == shadowStrengthInt
@@ -586,7 +587,7 @@ void Decoration::updateShadow()
     const CompositeShadowParams params = lookupShadowParams(shadowSizePreset);
 
     if (params.isNone()) { // InternalSettings::ShadowNone
-        s_cachedShadow.clear();
+        s_cachedShadow.reset();
         setShadow(s_cachedShadow);
         return;
     }
@@ -636,7 +637,7 @@ void Decoration::updateShadow()
 
     painter.end();
 
-    s_cachedShadow = QSharedPointer<KDecoration2::DecorationShadow>::create();
+    s_cachedShadow = std::make_shared<KDecoration2::DecorationShadow>();
     s_cachedShadow->setPadding(padding);
     s_cachedShadow->setInnerShadowRect(QRect(shadowTexture.rect().center(), QSize(1, 1)));
     s_cachedShadow->setShadow(shadowTexture);
@@ -733,22 +734,22 @@ int Decoration::sideBorderSize() const {
 }
 
 bool Decoration::Decoration::leftBorderVisible() const {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     return !decoratedClient->isMaximizedHorizontally()
         && !decoratedClient->adjacentScreenEdges().testFlag(Qt::LeftEdge);
 }
 bool Decoration::rightBorderVisible() const {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     return !decoratedClient->isMaximizedHorizontally()
         && !decoratedClient->adjacentScreenEdges().testFlag(Qt::RightEdge);
 }
 bool Decoration::topBorderVisible() const {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     return !decoratedClient->isMaximizedVertically()
         && !decoratedClient->adjacentScreenEdges().testFlag(Qt::TopEdge);
 }
 bool Decoration::bottomBorderVisible() const {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     return !decoratedClient->isMaximizedVertically()
         && !decoratedClient->adjacentScreenEdges().testFlag(Qt::BottomEdge)
         && !decoratedClient->isShaded();
@@ -773,7 +774,7 @@ template <typename T> using ScopedPointer = QScopedPointer<T, QScopedPointerPodD
 
 QPoint Decoration::windowPos() const
 {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     WId windowId = decoratedClient->windowId();
 
     if (KWindowSystem::isPlatformX11()) {
@@ -842,7 +843,7 @@ bool Decoration::dragMoveTick(const QPoint pos)
 
 void Decoration::sendMoveEvent(const QPoint pos)
 {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     WId windowId = decoratedClient->windowId();
 
     QPoint globalPos = windowPos()
@@ -949,7 +950,7 @@ void Decoration::paintFrameBackground(QPainter *painter, const QRect &repaintReg
 
 QColor Decoration::borderColor() const
 {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     const auto group = decoratedClient->isActive()
         ? KDecoration2::ColorGroup::Active
         : KDecoration2::ColorGroup::Inactive;
@@ -963,7 +964,7 @@ QColor Decoration::borderColor() const
 
 QColor Decoration::titleBarBackgroundColor() const
 {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     const auto group = decoratedClient->isActive()
         ? KDecoration2::ColorGroup::Active
         : KDecoration2::ColorGroup::Inactive;
@@ -977,7 +978,7 @@ QColor Decoration::titleBarBackgroundColor() const
 
 QColor Decoration::titleBarForegroundColor() const
 {
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
     const auto group = decoratedClient->isActive()
         ? KDecoration2::ColorGroup::Active
         : KDecoration2::ColorGroup::Inactive;
@@ -1003,7 +1004,7 @@ void Decoration::paintCaption(QPainter *painter, const QRect &repaintRegion) con
         return;
     }
 
-    const auto *decoratedClient = client().toStrongRef().data();
+    const auto *decoratedClient = client();
 
     const int textWidth = settings()->fontMetrics().boundingRect(decoratedClient->caption()).width();
     const QRect textRect((size().width() - textWidth) / 2, 0, textWidth, titleBarHeight());

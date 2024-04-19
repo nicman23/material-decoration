@@ -94,7 +94,7 @@ Button::Button(KDecoration2::DecorationButtonType type, Decoration *decoration, 
 
     setHeight(decoration->titleBarHeight());
 
-    auto *decoratedClient = decoration->client().toStrongRef().data();
+    auto *decoratedClient = decoration->client();
 
     switch (type) {
     case KDecoration2::DecorationButtonType::Menu:
@@ -329,7 +329,7 @@ QColor Button::backgroundColor() const
 
     //--- CloseButton
     if (type() == KDecoration2::DecorationButtonType::Close) {
-        auto *decoratedClient = deco->client().toStrongRef().data();
+        auto *decoratedClient = deco->client();
         const QColor hoveredColor = decoratedClient->color(
             KDecoration2::ColorGroup::Warning,
             KDecoration2::ColorRole::Foreground
@@ -426,7 +426,7 @@ QColor Button::foregroundColor() const
         // when we just change the fgColor on hover instead of the bgColor.
         QColor hoveredColor;
         if (m_isGtkButton && type() == KDecoration2::DecorationButtonType::Close) {
-            auto *decoratedClient = deco->client().toStrongRef().data();
+            auto *decoratedClient = deco->client();
             hoveredColor = decoratedClient->color(
                 KDecoration2::ColorGroup::Warning,
                 KDecoration2::ColorRole::Foreground

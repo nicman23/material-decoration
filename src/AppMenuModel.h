@@ -76,7 +76,7 @@ signals:
     void requestActivateIndex(int index);
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long int *result) override;
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
 
 private Q_SLOTS:
     void onWinIdChanged();
