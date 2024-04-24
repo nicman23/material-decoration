@@ -22,7 +22,7 @@ include (KDECompilerSettings NO_POLICY_SCOPE)
 
 # set(QT_MIN_VERSION "5.9.0")
 # https://doc.qt.io/qt-6/cmake-qt5-and-qt6-compatibility.html#supporting-older-qt-5-versions
-# find_package(QT NAMES Qt6 Qt5)
+find_package(QT NAMES Qt6)
 #find_package(QT NAMES Qt5)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR})
 

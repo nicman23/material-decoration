@@ -18,7 +18,6 @@
 // own
 #include "Decoration.h"
 #include "Button.h"
-#include "ConfigurationModule.h"
 
 // KF
 #include <KPluginFactory>
@@ -28,7 +27,6 @@ K_PLUGIN_FACTORY_WITH_JSON(
     "material.json",
     registerPlugin<Material::Decoration>();
     registerPlugin<Material::Button>();
-    registerPlugin<Material::ConfigurationModule>();
 );
 
 #include "plugin.moc"

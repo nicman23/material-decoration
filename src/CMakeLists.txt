@@ -92,7 +92,6 @@ set (decoration_SRCS
     Decoration.cc
     MenuOverflowButton.cc
     TextButton.cc
-    ConfigurationModule.cc
     plugin.cc
 )
 
